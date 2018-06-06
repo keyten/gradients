@@ -1,0 +1,375 @@
+<meta charset="utf-8"/>
+<canvas id="c2d" width="2000" height="2000" style="position:absolute;top:0;left:0;cursor:crosshair"></canvas>
+<canvas id="c2d2" width="2000" height="2000" style="position:absolute;top:0;left:0;cursor:crosshair"></canvas>
+<div style="position: absolute; top: 10px; left: 10px">
+	<input type="text" id="color1" value="0,0,0"/>
+	<input type="text" id="color2" value="255,255,255"/>
+	<input type="text" id="detail" value="10"/>
+</div>
+<script src="https://keyten.github.io/gradients/graphics2d.js"></script>
+<script>
+var ctx = Delta.query('#c2d2');
+var area = {
+	x: 0, y: 0,
+	width: window.innerWidth,
+	height: window.innerHeight
+};
+var color1 = [0, 0, 0];
+var color2 = [255, 255, 255];
+var detail = 10;
+
+var path = ctx.path([
+	[area.x + area.width / 2 - 200, area.height / 2],
+	[
+		area.x + area.width / 2 - 100,
+		area.height / 2 - 100,
+		area.x + area.width / 2 + 100,
+		area.height / 2 + 100,
+		area.x + area.width / 2 + 200,
+		area.height / 2
+	]
+], null, 'red 2pt');
+var v1 = path.attr('d')[0];
+var v2 = path.attr('d')[1];
+
+var c1 = ctx.circle(area.x + area.width / 2 - 200, area.height / 2, 5, 'red', 'white 1');
+var c2 = ctx.circle(area.x + area.width / 2 + 200, area.height / 2, 5, 'red', 'white 1');
+var c3 = ctx.circle(area.x + area.width / 2 - 100, area.height / 2 - 100, 5, 'red', 'white 1');
+var c4 = ctx.circle(area.x + area.width / 2 + 100, area.height / 2 + 100, 5, 'red', 'white 1');
+drag(c1, function(p){
+	v1.attr({
+		x: p[0],
+		y: p[1]
+	});
+}, draw);
+drag(c2, function(p){
+	v2.attr({
+		x: p[0],
+		y: p[1]
+	});
+}, draw);
+drag(c3, function(p){
+	v2.attr({
+		h1x: p[0],
+		h1y: p[1]
+	});
+}, draw);
+drag(c4, function(p){
+	v2.attr({
+		h2x: p[0],
+		h2y: p[1]
+	});
+}, draw);
+
+//[c1, c2, c3, c4, path].forEach(v => v.attr('visible', false));
+
+var ct = document.querySelector('#c2d').getContext('2d');
+draw();
+
+function draw(){
+	var data = ct.createImageData(area.width, area.height);
+	var pixels = data.data;
+	var color;
+
+	for(var i = 0; i < pixels.length; i += 4){
+	//	if(i > 50000){
+	//		break;
+	//	}
+		// i = ((y * width) + x) * 4
+		// => x = (i / 4) % width
+		// => y = round((i / 4) / width)
+		color = getColor(
+			(i / 4) % area.width,
+			((i / 4) / area.width) | 0
+		);
+		pixels[i + 0] = color[0];
+		pixels[i + 1] = color[1];
+		pixels[i + 2] = color[2];
+		pixels[i + 3] = 255;
+	}
+
+	ct.putImageData(data, area.x, area.y);
+}
+
+function getColor(x, y){
+	var r = 0, g = 0, b = 0;
+	var t = nearestT(
+		v1.attrs.args,
+		[
+			v2.attrs.args[0],
+			v2.attrs.args[1]
+		],
+		[
+			v2.attrs.args[2],
+			v2.attrs.args[3]
+		],
+		[
+			v2.attrs.args[4],
+			v2.attrs.args[5]
+		],
+		x, y
+	);
+
+	return [
+		color1[0] + (color2[0] - color1[0]) * t | 0,
+		color1[1] + (color2[1] - color1[1]) * t | 0,
+		color1[2] + (color2[2] - color1[2]) * t | 0
+	];
+}
+/*
+function getColor(x, y){
+	var r = 0, g = 0, b = 0;
+	var pt = nearestPoint(
+		v1.attrs.args,
+		[
+			v2.attrs.args[0],
+			v2.attrs.args[1]
+		],
+		[
+			v2.attrs.args[2],
+			v2.attrs.args[3]
+		],
+		[
+			v2.attrs.args[4],
+			v2.attrs.args[5]
+		],
+		x, y
+	);
+
+	var dx = x - pt[0],
+		dy = y - pt[1],
+		k = dy / dx,
+		angle = Math.abs(Math.atan2(dy, dx) / (Math.PI));
+		// angle = Math.atan2(dy, dx) / (Math.PI);
+
+	return [
+		color1[0] + (color2[0] - color1[0]) * (angle) | 0,
+		color1[1] + (color2[1] - color1[1]) * (angle) | 0,
+		color1[2] + (color2[2] - color1[2]) * (angle) | 0
+	];
+} *//*
+function getColor(x, y){
+	var r = 0, g = 0, b = 0;
+	var t = nearestT(
+		v1.attrs.args,
+		[
+			v2.attrs.args[0],
+			v2.attrs.args[1]
+		],
+		[
+			v2.attrs.args[2],
+			v2.attrs.args[3]
+		],
+		[
+			v2.attrs.args[4],
+			v2.attrs.args[5]
+		],
+		x, y
+	);
+
+	var k = getCurvature(
+		v1.attrs.args,
+		[
+			v2.attrs.args[0],
+			v2.attrs.args[1]
+		],
+		[
+			v2.attrs.args[2],
+			v2.attrs.args[3]
+		],
+		[
+			v2.attrs.args[4],
+			v2.attrs.args[5]
+		],
+		t
+	) * 50;
+//	console.log(k);
+
+	return [
+		color1[0] + (color2[0] - color1[0]) * (k) | 0,
+		color1[1] + (color2[1] - color1[1]) * (k) | 0,
+		color1[2] + (color2[2] - color1[2]) * (k) | 0
+	];
+} */
+
+function pointAt(start, point1, point2, end, t){
+	var i = 1 - t;
+	return [
+		i * i * i * start[0] + 3 * t * i * i * point1[0] + 3 * t * t * i * point2[0] + t * t * t * end[0],
+		i * i * i * start[1] + 3 * t * i * i * point1[1] + 3 * t * t * i * point2[1] + t * t * t * end[1]
+	];
+
+	// гипоциклоида
+	// t = t * Math.PI * 2;
+/*	var r1 = 100,
+		r2 = 50,
+		k = 18/5;// r1 / r2;
+	return [
+		area.width / 2 + r2 * (k - 1) * (Math.cos(t) + (Math.cos((k - 1) * t)) / (k - 1)),
+		area.height / 2 + r2 * (k - 1) * (Math.sin(t) + (Math.sin((k - 1) * t)) / (k - 1))
+	]; */
+
+	// эпициклоида
+	// t = t * Math.PI * 2;
+/*	var r1 = 100,
+		r2 = 20,
+		k = 11/2;// r1 / r2;
+	return [
+		area.width / 2 + r2 * (k + 1) * (Math.cos(t) - (Math.cos((k + 1) * t)) / (k + 1)),
+		area.height / 2 + r2 * (k + 1) * (Math.sin(t) - (Math.sin((k + 1) * t)) / (k + 1))
+	]; */
+}
+
+function offset(start, point1, point2, end, t, len){
+	var zeroth = pointAt(start, point1, point2, end, t),
+		first = [
+			// -3P0(1-t)^2 + 3P1(1-t)^2 - 6P1t(1-t) - 3P2t^2 + 6P2t(1-t) + 3P3t^2
+			-3 * start[0] * Math.pow(1 - t, 2) +
+			3 * point1[0] * Math.pow(1 - t, 2) -
+			6 * point1[0] * t * (1 - t) -
+			3 * point2[0] * t * t +
+			6 * point2[0] * t * (1 - t) +
+			3 * end[0] * t * t,
+			-3 * start[1] * Math.pow(1 - t, 2) +
+			3 * point1[1] * Math.pow(1 - t, 2) -
+			6 * point1[1] * t * (1 - t) -
+			3 * point2[1] * t * t +
+			6 * point2[1] * t * (1 - t) +
+			3 * end[1] * t * t
+		],
+		k = Math.atan2(first[1], first[0]),
+		top = [
+			zeroth[0] + first[0],
+			zeroth[1] + first[1]
+		];
+	return {
+		center: zeroth,
+		top: top
+	}
+}
+
+function dist(point1, point2){
+	return Math.sqrt(Math.pow(point1[0] - point2[0], 2) + Math.pow(point1[1] - point2[1], 2));
+}
+
+function nearestT(start, point1, point2, end, x, y){
+	var point,
+		min = Infinity,
+	//	minPoint,
+		minI,
+		distance;
+	for(var i = 0; i <= detail; i++){
+		point = pointAt(start, point1, point2, end, i / detail);
+		distance = dist(point, [x, y]);
+		if(distance < min){
+	//		minPoint = point;
+			minI = i;
+			min = distance;
+		}
+	}
+	return minI / detail;
+}
+
+function nearestPoint(start, point1, point2, end, x, y){
+	var point,
+		min = Infinity,
+		minPoint,
+		distance;
+	for(var i = 0; i <= detail; i++){
+		point = pointAt(start, point1, point2, end, i / detail);
+		distance = dist(point, [x, y]);
+		if(distance < min){
+			minPoint = point;
+			min = distance;
+		}
+	}
+	return minPoint;
+}
+
+function getCurvature(start, point1, point2, end, t){
+	var first = [
+			// -3P0(1-t)^2 + 3P1(1-t)^2 - 6P1t(1-t) - 3P2t^2 + 6P2t(1-t) + 3P3t^2
+			-3 * start[0] * Math.pow(1 - t, 2) +
+			3 * point1[0] * Math.pow(1 - t, 2) -
+			6 * point1[0] * t * (1 - t) -
+			3 * point2[0] * t * t +
+			6 * point2[0] * t * (1 - t) +
+			3 * end[0] * t * t,
+			-3 * start[1] * Math.pow(1 - t, 2) +
+			3 * point1[1] * Math.pow(1 - t, 2) -
+			6 * point1[1] * t * (1 - t) -
+			3 * point2[1] * t * t +
+			6 * point2[1] * t * (1 - t) +
+			3 * end[1] * t * t
+		],
+		second = [
+			// -6 * (-P0(1-t) + P1(2 - 3t) + 3P2t - P2 - P3t)
+			-6 * (
+				-start[0] * (1 - t) +
+				point1[0] * (2 - 3 * t) +
+				3 * point2[0] * t -
+				point2[0] -
+				end[0] * t
+			),
+			-6 * (
+				-start[1] * (1 - t) +
+				point1[1] * (2 - 3 * t) +
+				3 * point2[1] * t -
+				point2[1] -
+				end[1] * t
+			),
+		];
+	return (first[0] * second[1] - second[0] * first[1]) / Math.pow(first[0] * first[0] + first[1] * first[1], 3/2);
+}
+
+function drag(circle, move, end){
+	var down = false;
+	circle.on('mousedown', function(){
+		down = true;
+	});
+	window.addEventListener('mouseup', function(){
+		if(down){
+			end();
+		}
+		down = false;
+	});
+	window.addEventListener('mousemove', function(e){
+		if(!down){
+			return;
+		}
+
+		var coords = ctx.contextCoords(e.clientX, e.clientY);
+		circle.attr({
+			cx: coords[0],
+			cy: coords[1]
+		});
+		move(coords);
+	});
+}
+
+document.querySelector('#color1').addEventListener('change', function(){
+	color1 = this.value.split(',').map(Number);
+	draw();
+});
+document.querySelector('#color2').addEventListener('change', function(){
+	color2 = this.value.split(',').map(Number);
+	draw();
+});
+document.querySelector('#detail').addEventListener('change', function(){
+	detail = +this.value;
+	if(detail > 400){
+		detail = 10;
+	}
+	draw();
+});
+</script>
+
+<style>
+body {
+	overflow: hidden;
+}
+
+* {
+	user-select: none;
+}
+</style>
