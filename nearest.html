@@ -5,6 +5,8 @@
 	<input type="color" id="color1" value="#000000"/>
 	<input type="color" id="color2" value="#ffffff"/>
 	<input type="text" id="detail" value="40"/>
+	<button id="save">Save</button>
+	<a href="https://keyten.github.io/gradients/summary">Go to 'summary' gradient</a>
 </div>
 <script src="https://keyten.github.io/gradients/graphics2d.js"></script>
 <script>
@@ -361,6 +363,10 @@ document.querySelector('#detail').addEventListener('change', function(){
 		detail = 40;
 	}
 	draw();
+});
+
+document.querySelector('#save').addEventListener('click', function(){
+	window.open(ctx.canvas.toDataURL());
 });
 </script>
 
