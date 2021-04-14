@@ -1,20 +1,24 @@
 <meta charset="utf-8"/>
 <canvas id="c2d" width="2000" height="2000" style="position:absolute;top:0;left:0;cursor:crosshair"></canvas>
 <canvas id="c2d2" width="2000" height="2000" style="position:absolute;top:0;left:0;cursor:crosshair"></canvas>
-<div style="position: absolute; top: 10px; left: 10px">
-	<input type="text" id="color1" value="0,0,0" size="13"/>
-	<input type="text" id="color2" value="255,255,255" size="13"/>
-	<input type="text" id="detail" value="10" size="3"/>
+<div style="position: absolute; top: 0; left: 0; background: rgba(255, 255, 255, 0.3); font-family: courier; width: 100%; padding: 10px 30px; box-sizing: border-box; display: grid; column-gap: 10px; grid-template-columns: auto auto auto auto auto auto auto 1fr auto auto">
+	<input type="color" id="color1" value="#000000"/>
+	<input type="color" id="color2" value="#ffffff"/>
+	<div>Detail:</div>
+	<input type="text" id="detail" value="40"/>
 	<select id="ease"></select>
 	<input type="text" id="power" value="1" size="3"/>
 	<label>
 		<input type="checkbox" id="inv" />
 		Inverted
 	</label>
+	<div></div>
+	<a href="https://keyten.github.io/gradients/nearest">Go to 'nearest' gradient</a>
+	<button id="save">Save</button>
 </div>
 <script src="https://keyten.github.io/gradients/graphics2d.js"></script>
 <script>
-	var fn;
+var fn;
 var ctx = Delta.query('#c2d2');
 var area = {
 	x: 0, y: 0,
@@ -30,7 +34,7 @@ window.addEventListener('resize', function(){
 
 var color1 = [0, 0, 0];
 var color2 = [255, 255, 255];
-var detail = 10;
+var detail = 40;
 
 var path = ctx.path([
 	[area.x + area.width / 2 - 200, area.height / 2],
@@ -77,7 +81,10 @@ drag(c4, function(p){
 
 //[c1, c2, c3, c4, path].forEach(v => v.attr('visible', false));
 
-var ct = document.querySelector('#c2d').getContext('2d');
+var cnvv = document.querySelector('#c2d');
+var ct = cnvv.getContext('2d');
+cnvv.width = area.width;
+cnvv.height = area.height;
 draw();
 
 function draw(){
@@ -453,19 +460,25 @@ function drag(circle, move, end){
 }
 
 document.querySelector('#color1').addEventListener('change', function(){
-	color1 = this.value.split(',').map(Number);
+	color1 = Delta.color(this.value); //this.value.split(',').map(Number);
 	draw();
 });
 document.querySelector('#color2').addEventListener('change', function(){
-	color2 = this.value.split(',').map(Number);
+	color2 = Delta.color(this.value); //this.value.split(',').map(Number);
 	draw();
 });
 document.querySelector('#detail').addEventListener('change', function(){
 	detail = +this.value;
-	if(detail > 400){
-		detail = 10;
+	if(detail > 1000){
+		detail = 400;
 	}
 	draw();
+});
+document.querySelector('#save').addEventListener('click', function(){
+	var a = document.createElement("a");
+	a.href = cnvv.toDataURL()
+	a.download = 'nearest-gradient.png';
+	a.click();
 });
 
 var sel = document.querySelector('select');
