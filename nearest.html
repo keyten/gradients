@@ -6,7 +6,7 @@
 	<input type="color" id="color2" value="#ffffff"/>
 	<div>Detail:</div>
 	<input type="text" id="detail" value="40"/>
-	<div></div>
+	<div id="processing"></div>
 	<a href="https://keyten.github.io/gradients/summary" style="color: black">Go to 'summary' gradient</a>
 	<button id="save">Save</button>
 </div>
@@ -66,6 +66,7 @@ drag(c4, function(p){
 }, draw);
 
 //[c1, c2, c3, c4, path].forEach(v => v.attr('visible', false));
+var pd = document.querySelector('#processing');
 
 var cnvv = document.querySelector('#c2d');
 var ct = cnvv.getContext('2d');
@@ -73,7 +74,18 @@ cnvv.width = area.width;
 cnvv.height = area.height;
 draw();
 
+window.addEventListener('resize', function(){
+	area.width = window.innerWidth;
+	area.height = window.innerHeight;
+	cnvv.width = area.width;
+	cnvv.height = area.height;
+	draw();
+});
+
 function draw(){
+	pd.textContent = '...processing...';
+
+	setTimeout(() => {
 	var data = ct.createImageData(area.width, area.height);
 	var pixels = data.data;
 	var color;
@@ -96,6 +108,8 @@ function draw(){
 	}
 
 	ct.putImageData(data, area.x, area.y);
+	pd.textContent = '';
+	}, 10);
 }
 
 function getColor(x, y){
