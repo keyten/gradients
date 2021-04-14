@@ -1,12 +1,14 @@
 <meta charset="utf-8"/>
 <canvas id="c2d" width="2000" height="2000" style="position:absolute;top:0;left:0;cursor:crosshair"></canvas>
 <canvas id="c2d2" width="2000" height="2000" style="position:absolute;top:0;left:0;cursor:crosshair"></canvas>
-<div style="position: absolute; top: 10px; left: 10px">
+<div style="position: absolute; top: 0; left: 0; background: rgba(255, 255, 255, 0.3); font-family: courier; padding: 10px; display: grid; column-gap: 10px; grid-template-columns: auto auto auto auto 1fr auto auto">
 	<input type="color" id="color1" value="#000000"/>
 	<input type="color" id="color2" value="#ffffff"/>
+	<div>Detail:</div>
 	<input type="text" id="detail" value="40"/>
+	<div></div>
+	<a href="https://keyten.github.io/gradients/summary" style="color: black">Go to 'summary' gradient</a>
 	<button id="save">Save</button>
-	<a href="https://keyten.github.io/gradients/summary">Go to 'summary' gradient</a>
 </div>
 <script src="https://keyten.github.io/gradients/graphics2d.js"></script>
 <script>
@@ -16,6 +18,8 @@ var area = {
 	width: window.innerWidth,
 	height: window.innerHeight
 };
+ctx.canvas.width = area.width;
+ctx.canvas.height = area.height;
 var color1 = [0, 0, 0];
 var color2 = [255, 255, 255];
 var detail = 40;
@@ -378,4 +382,6 @@ body {
 * {
 	user-select: none;
 }
+	
+
 </style>
