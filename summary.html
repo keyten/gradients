@@ -27,12 +27,6 @@ var area = {
 	width: window.innerWidth,
 	height: window.innerHeight
 };
-window.addEventListener('resize', function(){
-	area.width = window.innerWidth;
-	area.height = window.innerHeight;
-	draw();
-});
-
 
 var color1 = [0, 0, 0];
 var color2 = [255, 255, 255];
@@ -90,6 +84,14 @@ var ct = cnvv.getContext('2d');
 cnvv.width = area.width;
 cnvv.height = area.height;
 draw();
+
+window.addEventListener('resize', function(){
+	area.width = window.innerWidth;
+	area.height = window.innerHeight;
+	cnvv.width = area.width;
+	cnvv.height = area.height;
+	draw();
+});
 
 function draw(){
 	pd.textContent = '...processing...';
