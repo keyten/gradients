@@ -2,9 +2,9 @@
 <canvas id="c2d" width="2000" height="2000" style="position:absolute;top:0;left:0;cursor:crosshair"></canvas>
 <canvas id="c2d2" width="2000" height="2000" style="position:absolute;top:0;left:0;cursor:crosshair"></canvas>
 <div style="position: absolute; top: 10px; left: 10px">
-	<input type="text" id="color1" value="0,0,0"/>
-	<input type="text" id="color2" value="255,255,255"/>
-	<input type="text" id="detail" value="10"/>
+	<input type="color" id="color1" value="#000000"/>
+	<input type="color" id="color2" value="#ffffff"/>
+	<input type="text" id="detail" value="40"/>
 </div>
 <script src="https://keyten.github.io/gradients/graphics2d.js"></script>
 <script>
@@ -16,7 +16,7 @@ var area = {
 };
 var color1 = [0, 0, 0];
 var color2 = [255, 255, 255];
-var detail = 10;
+var detail = 40;
 
 var path = ctx.path([
 	[area.x + area.width / 2 - 200, area.height / 2],
@@ -348,17 +348,17 @@ function drag(circle, move, end){
 }
 
 document.querySelector('#color1').addEventListener('change', function(){
-	color1 = this.value.split(',').map(Number);
+	color1 = Delta.color(this.value); //this.value.split(',').map(Number);
 	draw();
 });
 document.querySelector('#color2').addEventListener('change', function(){
-	color2 = this.value.split(',').map(Number);
+	color2 = Delta.color(this.value); //this.value.split(',').map(Number);
 	draw();
 });
 document.querySelector('#detail').addEventListener('change', function(){
 	detail = +this.value;
-	if(detail > 400){
-		detail = 10;
+	if(detail > 1000){
+		detail = 40;
 	}
 	draw();
 });
