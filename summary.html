@@ -93,6 +93,7 @@ draw();
 
 function draw(){
 	pd.textContent = '...processing...';
+	setTimeout(() => {
 	var data = ct.createImageData(area.width, area.height);
 	var pixels = data.data;
 	var color;
@@ -132,6 +133,7 @@ function draw(){
 
 	ct.putImageData(data, area.x, area.y);
 	pd.textContent = '';
+	}, 10);
 }
 
 function genPoints(start, point1, point2, end){
